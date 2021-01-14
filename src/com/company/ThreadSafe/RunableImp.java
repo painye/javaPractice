@@ -13,7 +13,7 @@ public class RunableImp implements Runnable{
                 }
                 System.out.println(Thread.currentThread().getName()+"--->"+"正在售卖"+ticket);
                 ticket--;
-            }
+             }
             else    break;
         }
     }
