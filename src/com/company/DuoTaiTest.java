@@ -9,7 +9,7 @@ public class DuoTaiTest {
         n.UseUSB(m);
         n.UseUSB(k);
 
-        Zi f=new Zi();
+        Fu f=new Zi();
         f.show();
         System.out.println(f.num);
 
@@ -65,8 +65,12 @@ class Fu{
         System.out.println("Fu show "+num);// this.num
     }
 }
+
 class Zi extends Fu{
     int num = 6;
+    void myprint(){
+        System.out.println("I'm Zi's print");
+    }
 }
 
 class Super
