@@ -1,6 +1,12 @@
 package MyUtil;
 
+import MyEntity.Student;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Scanner;
@@ -101,15 +107,15 @@ public class JdbcUtil {
      * @return
      */
     public static ResultSet sqlQuery(Connection con){
-        int flag = 1;
+        String objName = null;
         ResultSet rs=null;
         Scanner sc = new Scanner(System.in);
         System.out.print("请输入您想要查询的表:");
         String selectTable = sc.next();
         //对选择的表的类型做标记，方便输出;
-        if(selectTable.equals("student"))   flag=1;
-        else if(selectTable.equals("course"))  flag=2;
-        else if(selectTable.equals("sc"))       flag=3;
+        if(selectTable.equals("student"))   objName="MyEntity.Student";
+        else if(selectTable.equals("course"))  objName="MyEntity.Course";
+        else if(selectTable.equals("sc"))       objName="MyEntity.SC";
         else {
             System.out.println("!!!!!!!!!!!!!!您选择了错误的表!!!!!!!!!!!!!!!");
             exit();
@@ -126,7 +132,66 @@ public class JdbcUtil {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        try {
+            getResult(rs, Class.forName(objName));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         return rs;
+    }
+
+
+    public static <T> List<T> getResult(ResultSet rs, Class<T> clazz){
+        List<T> dateList = new ArrayList<T>();
+        try{
+            while(rs.next()){
+
+                T date = clazz.newInstance();
+                try {
+                    /*
+                    Method set = clazz.getDeclaredMethod("setSno", String.class);
+                    set.invoke(date, rs.getString(1));
+                    set = clazz.getDeclaredMethod("setSname", String.class);
+                    set.invoke(date, rs.getString(2));
+                    set = clazz.getDeclaredMethod("setSsex", String.class);
+                    set.invoke(date, rs.getString(3));
+                    set = clazz.getDeclaredMethod("setSage", int.class);
+                    set.invoke(date, rs.getInt(4));
+                    set = clazz.getDeclaredMethod("setSdept", String.class);
+                    set.invoke(date, rs.getString(5));
+                     */
+                    //ResultSetMetaData可用于获取有关ResultSet对象中列的类型和属性的信息的对象
+                    ResultSetMetaData colums = rs.getMetaData();
+                    Method set = null;
+                    for(int i= 1; i<=colums.getColumnCount(); i++){
+                        //getColumnName(i)获取第i列的属性的名字,注意转成小写，因为与数据库对应但是注意属性中命名规范一般是小写
+                        String columName = colums.getColumnName(i).toLowerCase();
+                        //因为表中的字段名和我们在设置对象时的名字是一致的，所以可以直接将表中的列名直接拿过来用，让后通过反射得到运行类中的该属性
+                        Field fieldClass = clazz.getDeclaredField(columName);
+                        set = clazz.getDeclaredMethod("set"+columName.toUpperCase().charAt(0)+columName.toLowerCase().substring(1), fieldClass.getType());
+                        set.invoke(date, rs.getObject(columName));
+                    }
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                }catch (InvocationTargetException e){
+                    e.printStackTrace();
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                }
+                dateList.add(date);
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+        for (T t : dateList) {
+            System.out.println(t.toString());
+        }
+        return dateList;
     }
 
 
