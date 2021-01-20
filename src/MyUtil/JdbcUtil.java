@@ -1,6 +1,7 @@
 package MyUtil;
 
 import java.sql.*;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
@@ -129,6 +130,7 @@ public class JdbcUtil {
     }
 
 
+
     /**
      * 插入语句
      * @param con
@@ -197,6 +199,28 @@ public class JdbcUtil {
             ps = con.prepareStatement("select * from student where "+selectColumn+" like ?");
             ps.setString(1, myModule);
             printResult(ps.executeQuery());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    public static int sqlDelete (Connection con){
+        int count = 0;
+        Scanner sc = new  Scanner(System.in);
+        System.out.println("您当前正在执行的事务是删除");
+        System.out.println("您要执行那张表：");
+        String selectTable = sc.next();
+        System.out.println("请输入您想要修改的记录的特征是哪一个列的：");
+        String selectColumn = sc.next();
+        System.out.println("请输入该列匹配的特征");
+        String myModule = sc.next();
+        String sql = "delete from student where "+selectColumn+" like ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1,myModule);
+            count = ps.executeUpdate();
+            System.out.println("有"+count+"条记录已经删除成功");
         } catch (SQLException e) {
             e.printStackTrace();
         }

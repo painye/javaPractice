@@ -14,10 +14,11 @@ public class JdbcUtilTest01 {
         try {
             con=JdbcUtil.getConnection();
             System.out.println(con);
-            //rs = JdbcUtil.sqlQuery(con);
-            //JdbcUtil.printResult(rs);
+            rs = JdbcUtil.sqlQuery(con);
+            JdbcUtil.printResult(rs);
             //JdbcUtil.sqlInsert(con);
-            JdbcUtil.sqlUpdate(con);
+            //JdbcUtil.sqlUpdate(con);
+            //JdbcUtil.sqlDelete(con);
         } catch (Exception e) {
             e.printStackTrace();
         }finally {
