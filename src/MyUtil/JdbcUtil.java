@@ -1,6 +1,7 @@
 package MyUtil;
 
 import MyEntity.Student;
+import org.apache.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -11,9 +12,12 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 
+
 import static javafx.application.Platform.exit;
 
 public class JdbcUtil {
+    //获取日志目标记录器，通过指定的名字获得记录器，记录器负责控制日志信息
+    public static final Logger log = Logger.getLogger(JdbcUtil.class);
     public JdbcUtil() {
     }
 
@@ -23,8 +27,10 @@ public class JdbcUtil {
     static {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
+            log.info("注册驱动成功");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            log.error("注册驱动出错", e);
         }
     }
 
@@ -39,7 +45,7 @@ public class JdbcUtil {
         String user = bundle.getString("user");
         String password = bundle.getString("passWord");
         Connection con = DriverManager.getConnection(url, user, password);
-        System.out.println("连接完成");
+        log.info("获取连接成功,连接对象"+con);
         return con;
     }
 
@@ -146,7 +152,6 @@ public class JdbcUtil {
         List<T> dateList = new ArrayList<T>();
         try{
             while(rs.next()){
-
                 T date = clazz.newInstance();
                 try {
                     /*
@@ -191,10 +196,9 @@ public class JdbcUtil {
         for (T t : dateList) {
             System.out.println(t.toString());
         }
+        log.info(dateList);
         return dateList;
     }
-
-
 
     /**
      * 插入语句
@@ -237,6 +241,7 @@ public class JdbcUtil {
 
 
     public static int sqlUpdate(Connection con){
+
         PreparedStatement ps = null;
         ResultSet rs =null;
         int count = 0;
@@ -312,10 +317,8 @@ public class JdbcUtil {
                     System.out.print(rs.getString(4)+ " ");
                     System.out.println(rs.getString(5));
                 }
-
             } catch (SQLException e) {
                 e.printStackTrace();
             }
     }
-
 }
